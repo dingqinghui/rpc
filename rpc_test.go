@@ -19,9 +19,7 @@ type TestMessageReq struct {
 }
 
 func TestClient(t *testing.T) {
-
 	c := NewClient()
-	c.Init()
 	c.Send("TestService", "Add", &TestMessageReq{A: 2})
 	res := &TestMessageReq{}
 	c.Call("TestService", "Sub", &TestMessageReq{A: 100}, res, time.Second)
@@ -45,8 +43,6 @@ func (t *TestService) Sub(req *TestMessageReq, res *TestMessageReq) error {
 
 func TestSerer(t *testing.T) {
 	s := NewServer()
-	s.Init()
 	s.RegisterName("TestService", &TestService{})
-
 	time.Sleep(time.Hour)
 }

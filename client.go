@@ -16,6 +16,7 @@ import (
 func NewClient(options ...Option) *client {
 	c := new(client)
 	c.opts = loadOptions(options...)
+	c.Init()
 	return c
 }
 
