@@ -47,7 +47,7 @@ type service struct {
 func NewServer(options ...Option) *server {
 	s := new(server)
 	s.opts = loadOptions(options...)
-	s.Init()
+
 	return s
 }
 
