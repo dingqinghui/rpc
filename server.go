@@ -1,7 +1,7 @@
 /**
  * @Author: dingQingHui
  * @Description:
- * @File: server
+ * @File: Server
  * @Version: 1.0.0
  * @Date: 2024/11/19 18:50
  */
@@ -44,26 +44,26 @@ type service struct {
 	methods map[string]*method
 }
 
-func NewServer(options ...Option) *server {
-	s := new(server)
+func NewServer(options ...Option) *Server {
+	s := new(Server)
 	s.opts = loadOptions(options...)
 
 	return s
 }
 
-type server struct {
+type Server struct {
 	component.BuiltinComponent
 	opts        *Options
 	serviceDict map[string]*service
 }
 
-func (s *server) Init() {
+func (s *Server) Init() {
 	s.serviceDict = make(map[string]*service)
 	s.AddComponent(s.opts.GetMsgque())
 	s.BuiltinComponent.Init()
 }
 
-func (s *server) RegisterName(name string, rcv interface{}) error {
+func (s *Server) RegisterName(name string, rcv interface{}) error {
 	_, err := s.register(rcv, name)
 	s.opts.GetMsgque().Subscribe(name, func(subj string, data []byte) []byte {
 		return s.process(subj, data)
@@ -71,7 +71,7 @@ func (s *server) RegisterName(name string, rcv interface{}) error {
 	return err
 }
 
-func (s *server) process(serName string, data []byte) []byte {
+func (s *Server) process(serName string, data []byte) []byte {
 	ser := s.serviceDict[serName]
 	if ser == nil {
 		zlog.Error("rpc not register service", zap.String("name", serName))
@@ -127,20 +127,20 @@ func (s *server) process(serName string, data []byte) []byte {
 	return buf
 }
 
-func (s *server) register(rcv interface{}, name string) (string, error) {
+func (s *Server) register(rcv interface{}, name string) (string, error) {
 	ser := new(service)
 	ser.typ = reflect.TypeOf(rcv)
 	ser.value = reflect.ValueOf(rcv)
 	serName := reflect.Indirect(ser.value).Type().Name() // Type
 
 	if serName == "" {
-		err := errors.New("server register error name")
-		zlog.Error("server register error name", zap.String("name", ser.typ.String()))
+		err := errors.New("Server register error name")
+		zlog.Error("Server register error name", zap.String("name", ser.typ.String()))
 		return serName, err
 	}
 	if !isExported(serName) {
-		err := errors.New("server  name is not exported")
-		zlog.Error("server register error", zap.Error(err), zap.String("name", ser.typ.String()))
+		err := errors.New("Server  name is not exported")
+		zlog.Error("Server register error", zap.Error(err), zap.String("name", ser.typ.String()))
 		return serName, err
 	}
 	ser.name = serName
@@ -151,7 +151,7 @@ func (s *server) register(rcv interface{}, name string) (string, error) {
 	return serName, nil
 }
 
-func (s *server) Stop() {
+func (s *Server) Stop() {
 	s.BuiltinComponent.Stop()
 }
 

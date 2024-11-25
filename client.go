@@ -1,7 +1,7 @@
 /**
  * @Author: dingQingHui
  * @Description:
- * @File: client
+ * @File: Client
  * @Version: 1.0.0
  * @Date: 2024/11/19 17:57
  */
@@ -13,23 +13,23 @@ import (
 	"time"
 )
 
-func NewClient(options ...Option) *client {
-	c := new(client)
+func NewClient(options ...Option) *Client {
+	c := new(Client)
 	c.opts = loadOptions(options...)
 	return c
 }
 
-type client struct {
+type Client struct {
 	component.BuiltinComponent
 	opts *Options
 }
 
-func (c *client) Init() {
+func (c *Client) Init() {
 	c.AddComponent(c.opts.GetMsgque())
 	c.BuiltinComponent.Init()
 }
 
-func (c *client) Send(service string, method string, msg interface{}) error {
+func (c *Client) Send(service string, method string, msg interface{}) error {
 	buf, err := EncodeMessage(method, msg, c.opts.GetCodec())
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func (c *client) Send(service string, method string, msg interface{}) error {
 	return c.opts.GetMsgque().Send(service, buf)
 }
 
-func (c *client) Call(service string, method string, msg interface{}, reply interface{}, timeout time.Duration) error {
+func (c *Client) Call(service string, method string, msg interface{}, reply interface{}, timeout time.Duration) error {
 	buf, err := EncodeMessage(method, msg, c.opts.GetCodec())
 	if err != nil {
 		return err
@@ -52,6 +52,6 @@ func (c *client) Call(service string, method string, msg interface{}, reply inte
 	return nil
 }
 
-func (c *client) Stop() {
+func (c *Client) Stop() {
 	c.BuiltinComponent.Stop()
 }
